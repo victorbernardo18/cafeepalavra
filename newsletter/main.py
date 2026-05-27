@@ -69,9 +69,11 @@ def main():
         print("Erro: A variável RESEND_API_KEY não foi configurada.")
         sys.exit(1)
 
-    # 2. Carregar o tema do dia
+    # 2. Carregar o tema do dia (usando caminho relativo ao próprio script)
     try:
-        with open("temas.json", "r", encoding="utf-8") as f:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        temas_path = os.path.join(script_dir, "temas.json")
+        with open(temas_path, "r", encoding="utf-8") as f:
             temas = json.load(f)
     except Exception as e:
         print(f"Erro ao ler temas.json: {e}")
@@ -93,6 +95,7 @@ def main():
     # 4. Criar Agentes do CrewAI
     teologo = Agent(
         role="Teólogo e Conselheiro Espiritual",
+        role_description="Teólogo e Conselheiro Espiritual com ampla vivência em aconselhamento familiar e pastoral.",
         goal="Escolher um versículo bíblico adequado e escrever uma reflexão teológica diária curta, acolhedora e inspiradora.",
         backstory=(
             "Você é um teólogo com ampla vivência em aconselhamento familiar e pastoral. "
@@ -106,6 +109,7 @@ def main():
 
     editor = Agent(
         role="Editor e Redator de E-mail",
+        role_description="Editor literário e copywriter especializado em newsletters diárias.",
         goal="Revisar e polir a reflexão do teólogo, definir um assunto cativante e de alta conversão para o e-mail, e criar a Ação Prática do Dia.",
         backstory=(
             "Você é um editor literário e copywriter especializado em newsletters diárias. "
@@ -180,7 +184,6 @@ def main():
     for p in reflexao_paragraphs:
         p_text = p.strip()
         if p_text:
-            # Substitui eventuais quebras internas
             p_text = p_text.replace("\n", "<br>")
             reflexao_html += f'<p style="margin: 0 0 16px 0; text-align: justify;">{p_text}</p>'
 
