@@ -1,0 +1,58 @@
+[
+    {
+        "dia_semana": 0,
+        "dia_nome": "Segunda-feira",
+        "tema": "Novos Começos e Coragem",
+        "versiculo_referencia": "Josué 1:9",
+        "palavras_chave": ["coragem", "ação", "renovação", "início"],
+        "diretriz_editorial": "Enfatizar a importância de agir com fé e firmeza no início da semana. Abordar a responsabilidade pessoal combinada com o otimismo de que Deus acompanha cada passo."
+    },
+    {
+        "dia_semana": 1,
+        "dia_nome": "Terça-feira",
+        "tema": "Persistência e Confiança Diante de Dificuldades",
+        "versiculo_referencia": "Isaías 40:31",
+        "palavras_chave": ["paciência", "esperança", "fortalecimento", "esperar"],
+        "diretriz_editorial": "Escrever sobre como recuperar o fôlego em meio às pressões do dia a dia. Trazer uma mensagem de renovação de forças e foco na soberania de Deus."
+    },
+    {
+        "dia_semana": 2,
+        "dia_nome": "Quarta-feira",
+        "tema": "Sabedoria nas Escolhas",
+        "versiculo_referencia": "Tiago 1:5",
+        "palavras_chave": ["sabedoria", "discernimento", "calma", "direção"],
+        "diretriz_editorial": "Abordar a busca por lucidez e clareza no cotidiano. Focar na paz mental que vem ao pedir orientação divina, evitando decisões precipitadas."
+    },
+    {
+        "dia_semana": 3,
+        "dia_nome": "Quinta-feira",
+        "tema": "Paz e Contentamento",
+        "versiculo_referencia": "Filipenses 4:7",
+        "palavras_chave": ["paz", "descanso", "mente", "confiança"],
+        "diretriz_editorial": "Destacar a paz que excede o entendimento. Focar em como acalmar a mente agitada pelo trabalho e rotina, praticando a gratidão."
+    },
+    {
+        "dia_semana": 4,
+        "dia_nome": "Sexta-feira",
+        "tema": "Gratidão e Relações Familiares",
+        "versiculo_referencia": "1 Tessalonicenses 5:18",
+        "palavras_chave": ["gratidão", "família", "relacionamentos", "amor"],
+        "diretriz_editorial": "Trabalhar o encerramento da semana com foco no lar, na gratidão pelas pequenas conquistas e no fortalecimento dos laços com quem amamos."
+    },
+    {
+        "dia_semana": 5,
+        "dia_nome": "Sábado",
+        "tema": "Descanso e Restauração",
+        "versiculo_referencia": "Mateus 11:28",
+        "palavras_chave": ["descanso", "refrigério", "alívio", "silêncio"],
+        "diretriz_editorial": "Promover a reflexão sobre o valor do descanso restaurador, a pausa física e o desapego temporário do trabalho."
+    },
+    {
+        "dia_semana": 6,
+        "dia_nome": "Domingo",
+        "tema": "Esperança e Família",
+        "versiculo_referencia": "Salmo 23:1",
+        "palavras_chave": ["cuidado", "provisão", "família", "unidade"],
+        "diretriz_editorial": "Refletir sobre o cuidado providente de Deus sobre as famílias. Inspirar segurança e união para o lar."
+    }
+]

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Café & Palavra | Sua dose diária de paz matinal</title>
+    <!-- Google Fonts: Playfair Display (Títulos elegantes) e Outfit (Corpo moderno e limpo) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Meta Tags para SEO e Compartilhamento -->
+    <meta name="description" content="Receba reflexões bíblicas diárias curtas, acolhedoras e inspiradoras direto no seu e-mail. Comece o dia com café e uma boa palavra.">
+    <meta property="og:title" content="Café & Palavra | Reflexões Bíblicas Diárias">
+    <meta property="og:description" content="Comece o dia com 5 minutos de paz matinal diretamente na sua caixa de entrada.">
+    <meta property="og:type" content="website">
+</head>
+<body>
+    <div class="background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="container">
+        <!-- Card Principal com Glassmorphism -->
+        <section class="card" id="main-card">
+            <header class="logo-area">
+                <span class="icon-coffee">☕</span>
+                <h1 class="brand-title">Café & Palavra</h1>
+                <p class="brand-subtitle">5 minutos de paz para o seu início de dia</p>
+            </header>
+
+            <!-- Estado 1: Formulário de Inscrição -->
+            <div id="subscription-state" class="state-content active">
+                <p class="cta-description">
+                    Uma dose diária de otimismo, reflexão bíblica acolhedora e aplicação prática. Sem spam, 100% gratuito e focado no que realmente importa.
+                </p>
+
+                <form id="subscribe-form" novalidate>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" placeholder="Seu melhor e-mail..." required autocomplete="email">
+                        <button type="submit" id="btn-submit">
+                            <span class="btn-text">Quero Receber</span>
+                            <span class="spinner hidden"></span>
+                        </button>
+                    </div>
+                    <p class="error-msg" id="error-message"></p>
+                </form>
+
+                <footer class="card-footer">
+                    <p class="footer-note">📬 Enviado de segunda a sexta, às 06:00 da manhã.</p>
+                </footer>
+            </div>
+
+            <!-- Estado 2: Obrigado (Sucesso + Loop Viral) -->
+            <div id="thankyou-state" class="state-content hidden">
+                <div class="success-icon-wrapper">
+                    <div class="success-checkmark">
+                        <div class="check-icon"></div>
+                    </div>
+                </div>
+                
+                <h2 class="thankyou-title">Sua xícara está servida!</h2>
+                <p class="thankyou-desc">
+                    Sua inscrição foi confirmada. A partir de amanhã, sua dose diária de inspiração estará na sua caixa de entrada às 06:00.
+                </p>
+
+                <div class="viral-loop-box">
+                    <h3>☕ Que tal levar um pouco de paz para um amigo hoje?</h3>
+                    <p>Envie um convite rápido e compartilhe esse momento.</p>
+                    
+                    <a href="#" id="whatsapp-share-btn" class="whatsapp-btn" target="_blank" rel="noopener">
+                        <svg class="icon-whatsapp" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984a9.96 9.96 0 001.37 5.028L2 22l5.135-1.344a9.925 9.925 0 004.877 1.28h.005c5.507 0 9.99-4.478 9.99-9.985 0-2.67-1.037-5.18-2.92-7.065A9.925 9.925 0 0012.012 2zm5.735 14.334c-.314.88-1.56 1.62-2.152 1.708-.59.088-1.19.135-3.802-.953-3.337-1.386-5.425-4.747-5.59-4.968-.166-.22-1.34-1.782-1.34-3.402 0-1.62.846-2.415 1.15-2.743.305-.329.664-.412.885-.412.22 0 .443.002.637.01.2.01.463-.076.724.55.263.637.897 2.193.974 2.348.077.154.128.334.025.539-.102.206-.153.334-.306.514-.153.18-.323.4-.46.536-.154.154-.314.321-.136.626.177.304.788 1.296 1.691 2.097.973.864 1.79 1.132 2.044 1.247.254.115.402.097.552-.077.15-.175.647-.751.82-1.008.172-.257.346-.216.584-.129.239.088 1.517.715 1.777.844.26.13.433.195.497.303.064.11.064.63-.25 1.51z"/>
+                        </svg>
+                        Compartilhar no WhatsApp
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
