@@ -380,7 +380,7 @@ def main():
         lote = recipients[i:i + BATCH_SIZE]
         params = [
             {
-                "from": sender_email,
+                "from": f"Café & Palavra - Devocional Diário <{sender_email}>",
                 "to": email,
                 "subject": assunto_final,
                 "html": html_template,
