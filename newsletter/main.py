@@ -1,12 +1,11 @@
 import os
 import sys
 import json
-import time
 import datetime
 import requests
+import resend as resend_sdk
 from dotenv import load_dotenv
-from crewai import Agent, Task, Crew
-from langchain_openai import ChatOpenAI
+from crewai import Agent, Task, Crew, LLM
 from pydantic import BaseModel, Field
 
 # Carrega variáveis do arquivo .env (se existir localmente)
@@ -86,7 +85,7 @@ def main():
     print(f"Tema de hoje ({tema_hoje['dia_nome']}): {tema_hoje['tema']}")
 
     # 3. Inicializar LLM (GPT-4o-mini pelo baixo custo)
-    llm = ChatOpenAI(
+    llm = LLM(
         model="gpt-4o-mini",
         api_key=openai_api_key,
         temperature=0.7
@@ -95,13 +94,14 @@ def main():
     # 4. Criar Agentes do CrewAI
     teologo = Agent(
         role="Teólogo e Conselheiro Espiritual",
-        role_description="Teólogo e Conselheiro Espiritual com ampla vivência em aconselhamento familiar e pastoral.",
         goal="Escolher um versículo bíblico adequado e escrever uma reflexão teológica diária curta, acolhedora e inspiradora.",
         backstory=(
             "Você é um teólogo com ampla vivência em aconselhamento familiar e pastoral. "
             "Seu tom é sempre acolhedor, sábio e pautado por esperança, liberdade e responsabilidade pessoal. "
             "Você evita termos teológicos complexos, julgamento ou fatalismo, buscando aproximar o versículo da vida prática do leitor "
-            "com a doçura e a clareza de uma conversa de café da manhã."
+            "com a doçura e a clareza de uma conversa de café da manhã. "
+            "Você escreve de forma que o leitor sinta vontade de encaminhar o texto para alguém de quem gosta — "
+            "porque a reflexão toca numa dor ou alegria que todo mundo reconhece."
         ),
         llm=llm,
         verbose=True
@@ -109,12 +109,13 @@ def main():
 
     editor = Agent(
         role="Editor e Redator de E-mail",
-        role_description="Editor literário e copywriter especializado em newsletters diárias.",
         goal="Revisar e polir a reflexão do teólogo, definir um assunto cativante e de alta conversão para o e-mail, e criar a Ação Prática do Dia.",
         backstory=(
-            "Você é um editor literário e copywriter especializado em newsletters diárias. "
+            "Você é um editor literário e copywriter especializado em newsletters diárias de alto engajamento. "
             "Você garante que o conteúdo seja leve, acolhedor e formatado de forma que a leitura seja fluida e prazerosa em telas de celular. "
-            "Você sabe como extrair uma aplicação prática extremamente direta para o dia de quem lê."
+            "Você sabe como extrair uma aplicação prática extremamente direta para o dia de quem lê. "
+            "Você sempre escreve pensando em viralidade orgânica: o assunto do e-mail deve ser tão bom que o leitor sinta vontade "
+            "de abrir antes do café, e o conteúdo deve ser tão tocante que ele encaminhe para alguém antes do almoço."
         ),
         llm=llm,
         verbose=True
@@ -125,7 +126,10 @@ def main():
         description=(
             f"Com base no tema do dia: '{tema_hoje['tema']}' e diretriz editorial: '{tema_hoje['diretriz_editorial']}'.\n"
             f"Escolha um versículo inspirador e adequado (preferencialmente baseado em '{tema_hoje['versiculo_referencia']}' da tradução NVI ou similar).\n"
-            "Escreva uma reflexão diária acolhedora de 2 a 3 parágrafos relacionando o versículo a desafios comuns do cotidiano."
+            "Escreva uma reflexão diária acolhedora de 2 a 3 parágrafos relacionando o versículo a desafios comuns do cotidiano.\n"
+            "IMPORTANTE: A reflexão deve tocar numa experiência ou sentimento universal — algo que o leitor reconheça na própria vida "
+            "e que o faça pensar imediatamente em encaminhar para um familiar ou amigo próximo. "
+            "Evite reflexões genéricas. Prefira situações concretas do dia a dia (tensão no trabalho, saudade, medo de errar, amor pela família)."
         ),
         expected_output="Uma reflexão diária estruturada em parágrafos e o versículo bíblico de referência.",
         agent=teologo
@@ -134,7 +138,8 @@ def main():
     format_task = Task(
         description=(
             "Revise e melhore a reflexão gerada pelo Teólogo para torná-la ainda mais acolhedora, limpa e cativante.\n"
-            "Escreva um assunto (título) do e-mail curto e amigável.\n"
+            "Escreva um assunto (título) do e-mail curto, humano e amigável — que pareça enviado por um amigo, não por uma marca.\n"
+            "Evite pontuação excessiva, caixa alta ou palavras como 'URGENTE', 'INCRÍVEL', 'IMPERDÍVEL'.\n"
             "Crie a 'Ação Prática do Dia': um conselho ou atitude simples e direta que o leitor possa fazer hoje mesmo.\n"
             "Retorne a resposta estritamente estruturada de acordo com o modelo Pydantic fornecido."
         ),
@@ -187,13 +192,26 @@ def main():
             p_text = p_text.replace("\n", "<br>")
             reflexao_html += f'<p style="margin: 0 0 16px 0; text-align: justify;">{p_text}</p>'
 
-    # 9. Montar o Link de Compartilhamento no WhatsApp
-    share_text = f"Já garantiu sua leitura de amanhã? Convide alguém que precisa de uma boa palavra hoje: {site_url}"
-    whatsapp_share_link = f"https://api.whatsapp.com/send?text={requests.utils.quote(share_text)}"
-
-    # 10. Injetar conteúdo no HTML Template elegante
+    # 9. Montar data e assunto
     data_extenso = obter_data_extenso()
     assunto_final = output_dict.get("assunto", "Café & Palavra")
+
+    # 10. Montar o Link de Compartilhamento no WhatsApp com devocional completo
+    versiculo_share = output_dict.get('versiculo_texto', '')
+    reflexao_share = output_dict.get('reflexao', '').replace('\n\n', '\n').strip()
+    acao_share = output_dict.get('acao_do_dia', '')
+    share_text = (
+        f"☕ *Café & Palavra — {data_extenso}*\n\n"
+        f"_{versiculo_share}_\n\n"
+        f"{reflexao_share}\n\n"
+        f"✏️ *Ação do Dia:* {acao_share}\n\n"
+        f"---\n"
+        f"Receba reflexões como essa todos os dias de graça:\n"
+        f"👉 {site_url}"
+    )
+    whatsapp_share_link = f"https://api.whatsapp.com/send?text={requests.utils.quote(share_text)}"
+
+    # 11. Injetar conteúdo no HTML Template elegante
     
     html_template = f"""<!DOCTYPE html>
 <html lang="pt-BR">
@@ -279,8 +297,9 @@ def main():
                                         <p style="margin: 0 0 16px 0; font-size: 12px; line-height: 1.5; color: #8c7662; max-width: 340px;">
                                             O Café & Palavra é gratuito. Se as reflexões têm feito bem ao seu dia, apoie a manutenção dos nossos servidores com qualquer valor via PIX.
                                         </p>
-                                        <div style="display: inline-block; background-color: #ffffff; padding: 10px 18px; border-radius: 10px; border: 1px solid #e1dbd5; font-family: monospace; font-size: 13px; color: #3e2712; font-weight: bold; letter-spacing: 0.5px;">
-                                            Chave PIX: {pix_key}
+                                        <div style="display: inline-block; background-color: #ffffff; padding: 14px 24px; border-radius: 12px; border: 2px solid #d4a373;">
+                                            <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #8c7662; margin-bottom: 6px;">Chave PIX</span>
+                                            <span style="font-family: Georgia, serif; font-size: 18px; color: #3e2712; font-weight: 700; letter-spacing: 0.5px;">{pix_key}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -294,16 +313,30 @@ def main():
                                 <tr>
                                     <td align="center">
                                         <a href="{whatsapp_share_link}" target="_blank" style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; padding: 12px 24px; border-radius: 10px; box-shadow: 0 2px 5px rgba(37, 211, 102, 0.2);">
-                                            Compartilhar no WhatsApp
+                                            Compartilhe este devocional no WhatsApp
                                         </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA de Encaminhamento -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td align="center" style="background-color: #f0ebe4; border-radius: 12px; padding: 16px 20px;">
+                                        <p style="margin: 0 0 10px 0; font-size: 13px; color: #4e3629; font-weight: 600;">
+                                            📩 Conhece alguém que precisa de uma boa palavra hoje?
+                                        </p>
+                                        <p style="margin: 0; font-size: 12px; color: #8c7662; line-height: 1.5;">
+                                            Encaminhe este e-mail. É gratuito e pode fazer a diferença no dia de alguém.
+                                        </p>
                                     </td>
                                 </tr>
                             </table>
 
                             <!-- Opt-out e notas legais -->
                             <p style="margin: 0; font-size: 11px; color: #a4907e; line-height: 1.5;">
-                                Você recebeu este e-mail porque se inscreveu na nossa Landing Page.<br>
-                                Se não deseja mais receber nossas mensagens diárias, <a href="http://{{{{{{unsubscribe_url}}}}}}" style="color: #a06a38; text-decoration: underline;">cancele a sua inscrição</a>.
+                                Você recebeu este e-mail porque se inscreveu em <a href="{site_url}" style="color: #a06a38; text-decoration: underline;">cafeepalavra.com.br</a>.<br>
+                                Se não deseja mais receber nossas mensagens diárias, <a href="https://resend.com/unsubscribe" style="color: #a06a38; text-decoration: underline;">cancele a sua inscrição</a>.
                             </p>
 
                         </td>
@@ -335,29 +368,32 @@ def main():
         print("Nenhum destinatário ativo encontrado para envio.")
         return
 
-    # 12. Executar disparos através da API do Resend
-    import resend as resend_sdk
+    # 12. Executar disparos via Resend Batch (até 100 por lote)
     resend_sdk.api_key = resend_api_key
-    
+
+    BATCH_SIZE = 100
     sucesso = 0
     falha = 0
-    
-    print(f"Iniciando disparos de e-mail com remetente: {sender_email}")
-    for email in recipients:
-        try:
-            print(f"Enviando para {email}...")
-            resend_sdk.Emails.send({
+
+    print(f"Iniciando disparos em lote com remetente: {sender_email}")
+    for i in range(0, len(recipients), BATCH_SIZE):
+        lote = recipients[i:i + BATCH_SIZE]
+        params = [
+            {
                 "from": sender_email,
                 "to": email,
                 "subject": assunto_final,
-                "html": html_template
-            })
-            sucesso += 1
-            # Atraso para respeitar limites da conta grátis
-            time.sleep(0.5)
+                "html": html_template,
+            }
+            for email in lote
+        ]
+        try:
+            resend_sdk.Batch.send(params)
+            sucesso += len(lote)
+            print(f"Lote {i // BATCH_SIZE + 1}: {len(lote)} e-mails enviados.")
         except Exception as err:
-            print(f"Erro ao enviar para {email}: {err}")
-            falha += 1
+            print(f"Erro no lote {i // BATCH_SIZE + 1}: {err}")
+            falha += len(lote)
 
     print("\n=== RESUMO DOS DISPAROS ===")
     print(f"Sucesso: {sucesso}")
