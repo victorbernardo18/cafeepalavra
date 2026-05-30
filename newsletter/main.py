@@ -56,8 +56,8 @@ def main():
     resend_api_key = os.getenv("RESEND_API_KEY")
     resend_audience_id = os.getenv("RESEND_AUDIENCE_ID")
     sender_email = os.getenv("SENDER_EMAIL")
-    pix_key = os.getenv("PIX_KEY", "pix@cafeepalavra.com.br")
-    site_url = os.getenv("SITE_URL", "https://cafeepalavra.com.br")
+    pix_key = os.getenv("PIX_KEY", "pix@cafeepalavra.com")
+    site_url = os.getenv("SITE_URL", "https://cafeepalavra.com")
     test_email = os.getenv("TEST_EMAIL")
 
     if not openai_api_key:
@@ -92,6 +92,8 @@ def main():
     )
 
     # 4. Criar Agentes do CrewAI
+    verbose_mode = os.getenv("CREWAI_VERBOSE", "false").lower() == "true"
+
     teologo = Agent(
         role="Teólogo e Conselheiro Espiritual",
         goal="Escolher um versículo bíblico adequado e escrever uma reflexão teológica diária curta, acolhedora e inspiradora.",
@@ -104,7 +106,7 @@ def main():
             "porque a reflexão toca numa dor ou alegria que todo mundo reconhece."
         ),
         llm=llm,
-        verbose=True
+        verbose=verbose_mode
     )
 
     editor = Agent(
@@ -118,7 +120,7 @@ def main():
             "de abrir antes do café, e o conteúdo deve ser tão tocante que ele encaminhe para alguém antes do almoço."
         ),
         llm=llm,
-        verbose=True
+        verbose=verbose_mode
     )
 
     # 5. Criar Tarefas
@@ -335,8 +337,8 @@ def main():
 
                             <!-- Opt-out e notas legais -->
                             <p style="margin: 0; font-size: 11px; color: #a4907e; line-height: 1.5;">
-                                Você recebeu este e-mail porque se inscreveu em <a href="{site_url}" style="color: #a06a38; text-decoration: underline;">cafeepalavra.com.br</a>.<br>
-                                Se não deseja mais receber nossas mensagens diárias, <a href="https://resend.com/unsubscribe" style="color: #a06a38; text-decoration: underline;">cancele a sua inscrição</a>.
+                                Você recebeu este e-mail porque se inscreveu em <a href="{site_url}" style="color: #a06a38; text-decoration: underline;">cafeepalavra.com</a>.<br>
+                                Se não deseja mais receber nossas mensagens diárias, <a href="{{{{unsubscribe_url}}}}" style="color: #a06a38; text-decoration: underline;">cancele a sua inscrição</a>.
                             </p>
 
                         </td>
